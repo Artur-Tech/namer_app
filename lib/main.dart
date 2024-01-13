@@ -52,19 +52,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     Widget page;
     switch (selectedIndex) {
       case 0:
         page = GeneratorPage();
-        break;
       case 1:
-        page = Placeholder();
-        break;
+        page = FavoritesPage();
       default:
         throw UnimplementedError('no widget for $selectedIndex');
     }
+
     return LayoutBuilder(builder: (context, constraints) {
       return Scaffold(
         body: Row(
@@ -138,9 +138,9 @@ class GeneratorPage extends StatelessWidget {
                   appState.getNext();
                 },
                 child: Text('Next'),
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -148,7 +148,10 @@ class GeneratorPage extends StatelessWidget {
 }
 
 class BigCard extends StatelessWidget {
-  const BigCard({super.key, required this.pair});
+  const BigCard({
+    super.key,
+    required this.pair,
+  });
 
   final WordPair pair;
 
@@ -157,19 +160,46 @@ class BigCard extends StatelessWidget {
     final theme = Theme.of(context);
     final style = theme.textTheme.displayMedium!.copyWith(
       color: theme.colorScheme.onPrimary,
-      // backgroundColor: Colors.deepPurpleAccent,
     );
 
     return Card(
       color: theme.colorScheme.primary,
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20),
         child: Text(
-          "${pair.first} ${pair.second}",
+          pair.asLowerCase,
           style: style,
           semanticsLabel: "${pair.first} ${pair.second}",
         ),
       ),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    if (appState.favorites.isEmpty) {
+      return Center(
+        child: Text('No favorites yet.'),
+      );
+    }
+
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text('You have '
+              '${appState.favorites.length} favorites:'),
+        ),
+        for (var pair in appState.favorites)
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text(pair.asLowerCase),
+          ),
+      ],
     );
   }
 }
